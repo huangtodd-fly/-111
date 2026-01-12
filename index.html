@@ -26,12 +26,21 @@
             border-radius: 1.5rem;
             box-shadow: 0 4px 15px rgba(255, 133, 161, 0.1);
         }
-        .tab-active {
-            color: var(--primary-pink);
-            border-bottom: 3px solid var(--primary-pink);
-        }
         .safe-area-bottom {
             padding-bottom: env(safe-area-inset-bottom);
+        }
+        .chat-bubble-user {
+            background-color: var(--primary-pink);
+            color: white;
+            border-radius: 1rem 1rem 0 1rem;
+        }
+        .chat-bubble-ai {
+            background-color: #F3F4F6;
+            color: var(--text-dark);
+            border-radius: 1rem 1rem 1rem 0;
+        }
+        #ai-assistant-panel {
+            transition: transform 0.3s ease-in-out;
         }
     </style>
 </head>
@@ -40,7 +49,7 @@
     <!-- 顶部状态栏 -->
     <div class="gradient-bg text-white p-6 rounded-b-[2.5rem] shadow-lg">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-bold">👶 好孕管家</h1>
+            <h1 class="text-xl font-bold">👶 好孕管家 | 成都版</h1>
             <button onclick="openSettings()" class="opacity-80"><i class="fas fa-cog text-xl"></i></button>
         </div>
         
@@ -66,35 +75,14 @@
     <!-- 主要内容区域 -->
     <main class="px-4 mt-6">
         
-        <!-- 今日建议 -->
-        <div class="card p-5 mb-6 border-l-4 border-[#FF85A1]">
-            <h2 class="font-bold text-lg mb-2 text-[#FF85A1] flex items-center">
-                <i class="fas fa-lightbulb mr-2"></i> 今日科学建议
-            </h2>
-            <p id="daily-tip" class="text-gray-600 text-sm leading-relaxed">
-                加载中...
-            </p>
-        </div>
-
-        <!-- 关键节点导航 -->
-        <div class="grid grid-cols-2 gap-4 mb-6">
-            <div class="card p-4 flex items-center space-x-3" onclick="showTab('milestones')">
-                <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">产检时间表</p>
-                    <p class="text-[10px] text-gray-400">掌握每个节点</p>
-                </div>
-            </div>
-            <div class="card p-4 flex items-center space-x-3" onclick="showTab('guide')">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
-                    <i class="fas fa-apple-alt"></i>
-                </div>
-                <div>
-                    <p class="font-bold text-sm">禁忌与饮食</p>
-                    <p class="text-[10px] text-gray-400">吃得更安心</p>
-                </div>
+        <!-- AI 助手快捷提醒 -->
+        <div class="card p-5 mb-6 border-l-4 border-[#FF85A1] flex items-start space-x-3 cursor-pointer" onclick="showTab('ai')">
+            <div class="bg-pink-100 p-2 rounded-full">🤖</div>
+            <div>
+                <h2 class="font-bold text-sm text-[#FF85A1]">AI 助手本周重点提醒</h2>
+                <p id="ai-week-summary" class="text-gray-600 text-xs mt-1 leading-relaxed">
+                    加载中...
+                </p>
             </div>
         </div>
 
@@ -113,8 +101,11 @@
         <button onclick="showTab('milestones')" id="btn-milestones" class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fas fa-list-ul"></i><span class="text-[10px]">清单</span>
         </button>
-        <button onclick="showTab('guide')" id="btn-guide" class="flex flex-col items-center space-y-1 text-gray-400">
-            <i class="fas fa-book-open"></i><span class="text-[10px]">手册</span>
+        <button onclick="showTab('policy')" id="btn-policy" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-gavel"></i><span class="text-[10px]">政策</span>
+        </button>
+        <button onclick="showTab('ai')" id="btn-ai" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-robot"></i><span class="text-[10px]">AI助手</span>
         </button>
     </nav>
 
@@ -122,7 +113,7 @@
     <div id="settings-modal" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-6">
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm">
             <h3 class="text-xl font-bold mb-4">孕期设置</h3>
-            <p class="text-sm text-gray-500 mb-4">输入最后一次月经(LMP)的第一天：</p>
+            <p class="text-sm text-gray-500 mb-4">最后一次月经(LMP)的第一天：</p>
             <input type="date" id="lmp-date" class="w-full border rounded-xl p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-pink-300">
             <button onclick="saveSettings()" class="w-full gradient-bg text-white py-3 rounded-xl font-bold">开始追踪</button>
             <button onclick="closeSettings()" class="w-full mt-2 py-3 text-gray-400 text-sm">取消</button>
@@ -130,25 +121,43 @@
     </div>
 
     <script>
-        // --- 核心数据配置 ---
+        // --- 数据配置 ---
         const milestones = [
-            { week: 6, title: "第一次产检", detail: "B超检查胎芽、心管搏动，确认宫内怀孕。" },
-            { week: 12, title: "NT筛查", detail: "建立孕期档案，检查胎儿颈后透明带厚度。" },
-            { week: 16, title: "唐氏筛查", detail: "排查唐氏综合征等染色体异常。" },
-            { week: 24, title: "大排畸B超", detail: "系统性结构筛查，观察宝宝发育是否畸形。" },
-            { week: 26, title: "糖耐量检测", detail: "筛查妊娠期糖尿病。" },
-            { week: 36, title: "每周产检", detail: "开始每周一次监测，准备分娩。" }
+            { week: 6, title: "第一次产检", detail: "B超检查确认宫内怀孕，查看胎心胎芽。" },
+            { week: 12, title: "正式建档 & NT", detail: "成都建议在社区卫生中心或定点医院领《母子健康手册》。" },
+            { week: 16, title: "唐筛/无创", detail: "排查染色体异常。" },
+            { week: 24, title: "大排畸", detail: "系统性排查胎儿结构畸形。" },
+            { week: 32, title: "晚期评估", detail: "关注胎位及胎盘功能。" }
         ];
 
-        const phaseTips = {
-            1: "【孕早期 1-3月】胎儿发育关键期，补充叶酸，避免剧烈运动和X光。如有少量出血请及时就医。",
-            2: "【孕中期 4-6月】早孕反应消失，胃口变好。注意补钙补铁，开始感受胎动。",
-            3: "【孕晚期 7-10月】注意监测胎动。控制糖分摄入，准备待产包，预防水肿。"
-        };
+        const chengduPolicies = [
+            { 
+                time: "确认怀孕后", 
+                title: "生育登记", 
+                detail: "通过‘天府市民云’App或‘四川政务服务网’进行网上登记。这是后期报销、办出生证的基础。" 
+            },
+            { 
+                time: "孕12周前", 
+                title: "领取母子手册", 
+                detail: "凭身份证、检查单去社区卫生服务中心领取。成都职工医保可享受产前检查定额补助。" 
+            },
+            { 
+                time: "分娩前", 
+                title: "职工医保报销备案", 
+                detail: "成都参保职工在定点医疗机构持社保卡刷卡结算，可直接报销部分产检及住院费。" 
+            },
+            { 
+                time: "分娩后180天内", 
+                title: "生育津贴领取", 
+                detail: "由单位向医保局申请。成都政策：连续缴纳医保满6个月或12个月（视具体险种）即可享受。" 
+            }
+        ];
 
-        const foods = {
-            safe: ["叶酸", "坚果", "富含维生素C的水果", "牛肉/鱼肉"],
-            forbidden: ["生食/刺身", "酒精", "高糖饮料", "活血中药(山楂、桂圆过量)"]
+        const aiTips = {
+            1: "第一月：受精卵刚着床，成都早晚温差大注意防寒。开始吃叶酸，避免接触射线和药物。",
+            2: "第二月：早孕反应可能开始。记得去社区医院咨询建档流程，准备好结婚证和身份证。",
+            3: "第三月：宝宝人形初现。本周重点是预约NT检查，成都市妇幼等热门医院需要提前抢号。",
+            4: "第四月：进入稳定期。成都职工医保的产检报销通常从此时开始计入。"
         };
 
         // --- 应用逻辑 ---
@@ -156,7 +165,7 @@
 
         function init() {
             if (!appData.lmp) {
-                document.getElementById('settings-modal').classList.remove('hidden');
+                openSettings();
             } else {
                 updateDashboard();
                 showTab('home');
@@ -166,110 +175,113 @@
         function updateDashboard() {
             const lmp = new Date(appData.lmp);
             const now = new Date();
-            
-            // 计算当前怀孕天数
-            const diffTime = Math.abs(now - lmp);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            // 预产期计算 (LMP + 280天)
+            const diffDays = Math.ceil(Math.abs(now - lmp) / (1000 * 60 * 60 * 24));
             const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
             const daysLeft = Math.ceil((edd - now) / (1000 * 60 * 60 * 24));
             
-            const currentWeek = Math.floor(diffDays / 7);
-            const currentDay = diffDays % 7;
+            const week = Math.floor(diffDays / 7);
+            const day = diffDays % 7;
 
-            document.getElementById('current-week-display').innerText = `孕 ${currentWeek} 周 ${currentDay} 天`;
-            document.getElementById('days-left-display').innerText = daysLeft > 0 ? daysLeft : "已到达预产期";
-            
-            const progress = Math.min((diffDays / 280) * 100, 100);
-            document.getElementById('progress-bar').style.width = progress + '%';
+            document.getElementById('current-week-display').innerText = `孕 ${week} 周 ${day} 天`;
+            document.getElementById('days-left-display').innerText = daysLeft > 0 ? daysLeft : "0";
+            document.getElementById('progress-bar').style.width = Math.min((diffDays / 280) * 100, 100) + '%';
 
-            // 设置提示
-            let phase = 1;
-            if (currentWeek >= 13) phase = 2;
-            if (currentWeek >= 28) phase = 3;
-            document.getElementById('daily-tip').innerText = phaseTips[phase];
+            const month = Math.ceil(week / 4) || 1;
+            document.getElementById('ai-week-summary').innerText = aiTips[month] || "进入平稳期，注意按时产检。";
         }
 
         function showTab(tab) {
             const content = document.getElementById('tab-content');
-            
-            // 更新底部导航样式
-            const btns = ['home', 'milestones', 'guide'];
+            const btns = ['home', 'milestones', 'policy', 'ai'];
             btns.forEach(b => {
-                const el = document.getElementById('btn-' + b);
-                el.classList.remove('text-pink-500');
-                el.classList.add('text-gray-400');
+                document.getElementById('btn-' + b).classList.replace('text-pink-500', 'text-gray-400');
             });
-            document.getElementById('btn-' + (tab === 'home' ? 'home' : tab)).classList.add('text-pink-500');
+            document.getElementById('btn-' + tab).classList.replace('text-gray-400', 'text-pink-500');
 
             if (tab === 'home') {
                 content.innerHTML = `
-                    <div class="card p-5">
-                        <h3 class="font-bold mb-3">当前状态提醒</h3>
-                        <ul class="space-y-3 text-sm">
-                            <li class="flex items-start space-x-2">
-                                <span class="text-pink-500 mt-0.5">●</span>
-                                <span>按时服用叶酸（0.4mg/天）</span>
-                            </li>
-                            <li class="flex items-start space-x-2">
-                                <span class="text-pink-500 mt-0.5">●</span>
-                                <span>此时胚胎非常脆弱，避免熬夜。</span>
-                            </li>
-                            <li class="flex items-start space-x-2">
-                                <span class="text-pink-500 mt-0.5">●</span>
-                                <span>确认怀孕后，建议预约第6-8周的第一次B超。</span>
-                            </li>
+                    <div class="card p-5 mb-4">
+                        <h3 class="font-bold mb-3 flex items-center"><i class="fas fa-heart text-pink-500 mr-2"></i> 宝妈今日状态提醒</h3>
+                        <ul class="space-y-3 text-sm text-gray-600">
+                            <li>✨ 记得每天早餐后服用叶酸。</li>
+                            <li>💧 成都空气干燥，注意室内加湿和水分补充。</li>
+                            <li>💤 保证8小时充足睡眠，身体正在为宝宝构建新家。</li>
                         </ul>
+                    </div>
+                    <div class="card p-5 bg-blue-50">
+                        <h3 class="font-bold mb-2 text-blue-700">成都职工政策最近动态</h3>
+                        <p class="text-xs text-blue-600 leading-relaxed">2024年起，成都生育保险与医保合并，只要是在职缴纳职工医保，产假期间可领生育津贴（工资补偿），且产检费有定额补助。</p>
                     </div>
                 `;
             } else if (tab === 'milestones') {
-                let html = '<h3 class="font-bold text-lg mb-4">产检关键节点</h3>';
-                milestones.forEach(m => {
-                    html += `
-                        <div class="card p-4 flex space-x-4">
-                            <div class="flex flex-col items-center justify-center bg-pink-50 rounded-xl px-3 min-w-[60px]">
-                                <span class="text-xs text-pink-400">第</span>
-                                <span class="text-xl font-bold text-pink-600">${m.week}</span>
-                                <span class="text-xs text-pink-400">周</span>
+                content.innerHTML = '<h3 class="font-bold text-lg mb-4 pl-2">产检时间轴</h3>' + 
+                    milestones.map(m => `
+                        <div class="card p-4 flex space-x-4 mb-3">
+                            <div class="bg-pink-100 text-pink-600 rounded-xl px-3 py-2 text-center min-w-[60px]">
+                                <span class="text-[10px] block">第</span>
+                                <span class="text-lg font-bold block">${m.week}</span>
+                                <span class="text-[10px] block">周</span>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-800">${m.title}</h4>
+                                <h4 class="font-bold">${m.title}</h4>
                                 <p class="text-xs text-gray-500 mt-1">${m.detail}</p>
                             </div>
                         </div>
-                    `;
-                });
-                content.innerHTML = html;
-            } else if (tab === 'guide') {
+                    `).join('');
+            } else if (tab === 'policy') {
+                content.innerHTML = '<h3 class="font-bold text-lg mb-4 pl-2">成都政策办理节点</h3>' + 
+                    chengduPolicies.map(p => `
+                        <div class="card p-5 mb-3 border-t-4 border-blue-400">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded">${p.time}</span>
+                                <h4 class="font-bold text-gray-800">${p.title}</h4>
+                            </div>
+                            <p class="text-xs text-gray-600 leading-relaxed">${p.detail}</p>
+                        </div>
+                    `).join('');
+            } else if (tab === 'ai') {
                 content.innerHTML = `
-                    <div class="card p-5">
-                        <h3 class="font-bold text-red-500 mb-3"><i class="fas fa-exclamation-triangle mr-1"></i> 禁止/慎食</h3>
-                        <div class="flex flex-wrap gap-2">
-                            ${foods.forbidden.map(f => `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-medium">${f}</span>`).join('')}
+                    <div class="flex flex-col h-[50vh]">
+                        <div class="flex-1 overflow-y-auto space-y-4 p-2" id="chat-box">
+                            <div class="chat-bubble-ai p-3 text-sm max-w-[80%] shadow-sm">
+                                你好！我是您的孕期管家。关于成都建档、孕早期饮食或政策补贴，您可以问我任何问题。
+                            </div>
                         </div>
-                    </div>
-                    <div class="card p-5">
-                        <h3 class="font-bold text-green-600 mb-3"><i class="fas fa-check-circle mr-1"></i> 推荐摄入</h3>
-                        <div class="flex flex-wrap gap-2">
-                            ${foods.safe.map(f => `<span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-medium">${f}</span>`).join('')}
+                        <div class="mt-4 flex space-x-2">
+                            <input id="chat-input" type="text" placeholder="问问AI小助手..." class="flex-1 border rounded-full px-4 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <button onclick="sendMessage()" class="gradient-bg text-white w-10 h-10 rounded-full flex items-center justify-center">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </div>
-                    </div>
-                    <div class="card p-5">
-                        <h3 class="font-bold text-blue-600 mb-3"><i class="fas fa-info-circle mr-1"></i> 科学小知识</h3>
-                        <p class="text-xs leading-relaxed text-gray-600">
-                            怀孕第一个月，胚胎刚刚着床。此时准妈妈可能会感到胸部胀痛、易疲劳。这都是正常的激素变化。
-                            <br><br>
-                            <b>小建议：</b>可以开始下载一些胎教音乐或准备一本《怀孕百科》。
-                        </p>
                     </div>
                 `;
             }
         }
 
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if (!input.value) return;
+
+            const userMsg = input.value;
+            box.innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-3 text-sm max-w-[80%] shadow-sm">${userMsg}</div></div>`;
+            
+            // 简单模拟AI逻辑
+            setTimeout(() => {
+                let reply = "这是一个好问题。建议您可以先在‘天府市民云’App查看成都市最新的生育服务指南，或者咨询您选定的产检医院。我会持续为您学习更多成都本地政策！";
+                if (userMsg.includes("报销")) reply = "成都市职工生育保险报销通常包含：1.产前检查费（定额补助）；2.住院分娩费（医保目录内报销）；3.生育津贴（产假期间工资）。";
+                if (userMsg.includes("叶酸")) reply = "成都的社区卫生服务中心（如跳蹬河、双桥子社区等）通常可以凭身份证免费领取叶酸片，您也可以去药店购买0.4mg规格的。";
+                
+                box.innerHTML += `<div class="chat-bubble-ai p-3 text-sm max-w-[80%] shadow-sm">${reply}</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 500);
+            
+            input.value = "";
+            box.scrollTop = box.scrollHeight;
+        }
+
         function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
-        
         function saveSettings() {
             const date = document.getElementById('lmp-date').value;
             if (date) {
