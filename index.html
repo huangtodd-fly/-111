@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>好孕管家 - 科学孕期管理</title>
+    <title>好孕管家 - 成都科学孕期助手</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -38,68 +38,53 @@
             background-color: #F3F4F6;
             color: var(--text-dark);
             border-radius: 1rem 1rem 1rem 0;
+            white-space: pre-line;
         }
-        /* 正在输入动画 */
         .typing-dot {
-            width: 4px;
-            height: 4px;
-            background: #999;
-            border-radius: 50%;
-            display: inline-block;
-            animation: typing 1.4s infinite ease-in-out;
+            width: 4px; height: 4px; background: #999; border-radius: 50%;
+            display: inline-block; animation: typing 1.4s infinite ease-in-out;
         }
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typing {
-            0%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-4px); }
-        }
+        @keyframes typing { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-4px); } }
     </style>
 </head>
 <body class="pb-24">
 
-    <!-- 顶部状态栏 -->
+    <!-- 状态栏 -->
     <div class="gradient-bg text-white p-6 rounded-b-[2.5rem] shadow-lg">
         <div class="flex justify-between items-center mb-4">
-            <h1 class="text-xl font-bold">👶 好孕管家 | AI 增强版</h1>
+            <h1 class="text-xl font-bold">👶 好孕管家 | 成都版</h1>
             <button onclick="openSettings()" class="opacity-80"><i class="fas fa-cog text-xl"></i></button>
         </div>
         
-        <div id="countdown-card" class="text-center py-4">
-            <p class="text-sm opacity-90 mb-1" id="current-week-display">点击设置预产期</p>
+        <div class="text-center py-4">
+            <p class="text-sm opacity-90 mb-1" id="current-week-display">点击设置</p>
             <div class="text-5xl font-black mb-2" id="days-left-display">--</div>
             <p class="text-sm opacity-90">距宝宝出生还有多少天</p>
         </div>
 
         <div class="mt-6">
-            <div class="flex justify-between text-xs mb-1">
-                <span>孕早期</span>
-                <span>孕中期</span>
-                <span>孕晚期</span>
-            </div>
             <div class="w-full bg-white/30 h-2 rounded-full overflow-hidden">
-                <div id="progress-bar" class="bg-white h-full" style="width: 0%"></div>
+                <div id="progress-bar" class="bg-white h-full transition-all duration-500" style="width: 0%"></div>
             </div>
         </div>
     </div>
 
-    <!-- 主要内容区域 -->
+    <!-- 主内容 -->
     <main class="px-4 mt-6">
-        
-        <!-- AI 助手快捷提醒 -->
+        <!-- AI 快捷建议 -->
         <div class="card p-5 mb-6 border-l-4 border-[#FF85A1] flex items-start space-x-3 cursor-pointer" onclick="showTab('ai')">
-            <div class="bg-pink-100 p-2 rounded-full">🤖</div>
-            <div>
-                <h2 class="font-bold text-sm text-[#FF85A1]">真 AI 助手本周重点</h2>
+            <div class="bg-pink-100 p-2 rounded-full text-xl">🤖</div>
+            <div class="flex-1">
+                <h2 class="font-bold text-sm text-[#FF85A1]">千问 AI 孕期实时建议</h2>
                 <p id="ai-week-summary" class="text-gray-600 text-xs mt-1 leading-relaxed italic">
-                    正在分析您的孕期阶段...
+                    正在连线千问大模型进行分析...
                 </p>
             </div>
         </div>
 
-        <div id="tab-content" class="space-y-4">
-            <!-- 由 JS 填充 -->
-        </div>
+        <div id="tab-content" class="space-y-4"></div>
     </main>
 
     <!-- 底部导航 -->
@@ -108,7 +93,7 @@
             <i class="fas fa-home"></i><span class="text-[10px]">概览</span>
         </button>
         <button onclick="showTab('milestones')" id="btn-milestones" class="flex flex-col items-center space-y-1 text-gray-400">
-            <i class="fas fa-list-ul"></i><span class="text-[10px]">清单</span>
+            <i class="fas fa-list-ul"></i><span class="text-[10px]">产检</span>
         </button>
         <button onclick="showTab('policy')" id="btn-policy" class="flex flex-col items-center space-y-1 text-gray-400">
             <i class="fas fa-gavel"></i><span class="text-[10px]">政策</span>
@@ -121,79 +106,69 @@
     <!-- 设置弹窗 -->
     <div id="settings-modal" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-6">
         <div class="bg-white rounded-3xl p-6 w-full max-w-sm">
-            <h3 class="text-xl font-bold mb-4">孕期设置</h3>
-            <p class="text-sm text-gray-500 mb-4">最后一次月经(LMP)的第一天：</p>
-            <input type="date" id="lmp-date" class="w-full border rounded-xl p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-pink-300">
-            <button onclick="saveSettings()" class="w-full gradient-bg text-white py-3 rounded-xl font-bold">开始追踪</button>
-            <button onclick="closeSettings()" class="w-full mt-2 py-3 text-gray-400 text-sm">取消</button>
+            <h3 class="text-xl font-bold mb-4">孕期配置</h3>
+            <p class="text-sm text-gray-500 mb-2">1. 输入最后一次月经日期：</p>
+            <input type="date" id="lmp-date" class="w-full border rounded-xl p-3 mb-4 focus:ring-2 focus:ring-pink-300">
+            <p class="text-sm text-gray-500 mb-2">2. 输入通义千问 API Key：</p>
+            <input type="password" id="api-key-input" placeholder="sk-..." class="w-full border rounded-xl p-3 mb-4 focus:ring-2 focus:ring-pink-300">
+            <button onclick="saveSettings()" class="w-full gradient-bg text-white py-3 rounded-xl font-bold">保存并开始</button>
+            <button onclick="closeSettings()" class="w-full mt-2 py-3 text-gray-400 text-sm">稍后设置</button>
         </div>
     </div>
 
     <script>
-        // --- Gemini API 配置 ---
-        const apiKey = "sk-4a9723a2b7e44c018ed573140a5fac2e"; // 运行时自动注入
-        const modelName = "qw";
-        
-        // --- 数据配置 ---
-        const milestones = [
-            { week: 6, title: "第一次产检", detail: "B超检查确认宫内怀孕，查看胎心胎芽。" },
-            { week: 12, title: "正式建档 & NT", detail: "成都建议在社区卫生中心或定点医院领《母子健康手册》。" },
-            { week: 16, title: "唐筛/无创", detail: "排查染色体异常。" },
-            { week: 24, title: "大排畸", detail: "系统性排查胎儿结构畸形。" },
-            { week: 32, title: "晚期评估", detail: "关注胎位及胎盘功能。" }
-        ];
-
-        const chengduPolicies = [
-            { time: "确认怀孕后", title: "生育登记", detail: "通过‘天府市民云’App进行。后期报销基础。" },
-            { time: "孕12周前", title: "领取母子手册", detail: "凭身份证去社区卫生服务中心领取。" },
-            { time: "分娩前", title: "医保备案", detail: "在定点医疗机构持社保卡刷卡结算。" }
-        ];
-
-        let appData = JSON.parse(localStorage.getItem('prego_data')) || { lmp: null };
+        // --- 核心变量 ---
+        let appData = JSON.parse(localStorage.getItem('prego_qwen_v1')) || { lmp: null, apiKey: "" };
         let currentStatus = { week: 0, day: 0 };
 
-        // --- 核心逻辑 ---
-        async function callGemini(prompt, useSearch = true) {
-            const systemPrompt = `你是一个专业的孕期助手，名叫“好孕管家”。
-            你的服务对象是成都市的一对年轻夫妇。
-            你的回答必须基于：科学医学常识、成都市最新的生育保险政策、温柔体贴的语气。
-            当前用户处于怀孕第 ${currentStatus.week} 周第 ${currentStatus.day} 天。
-            如果涉及成都市政策或医疗机构，请尽量提供本地化的准确信息。`;
+        // --- 通义千问 API 逻辑 ---
+        async function callQwen(userPrompt) {
+            if (!appData.apiKey) return "请在设置中配置通义千问 API Key。";
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-            if (useSearch) {
-                payload.tools = [{ "google_search": {} }];
-            }
+            const systemContent = `你是一个名为“好孕管家”的专业AI助手。
+            你的任务是协助身在成都市的准爸爸照顾怀孕 ${currentStatus.week} 周 ${currentStatus.day} 天的老婆。
+            你的建议必须基于医学常识和成都市最新的政策（如生育登记、职工社保报销）。
+            语气要专业且充满人文关怀。回答尽量精炼，适合手机端阅读。`;
 
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        body: JSON.stringify(payload)
-                    });
-                    const result = await response.json();
-                    return result.candidates?.[0]?.content?.parts?.[0]?.text || "抱歉，我现在有点累了，请稍后再试。";
-                } catch (e) {
-                    await new Promise(r => setTimeout(r, Math.pow(2, i) * 1000));
-                }
+            const apiUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
+            
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${appData.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        model: "qwen-plus", // 或者使用 qwen-max
+                        messages: [
+                            { role: "system", content: systemContent },
+                            { role: "user", content: userPrompt }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                if (data.error) throw new Error(data.error.message);
+                return data.choices[0].message.content;
+            } catch (error) {
+                console.error(error);
+                return "AI 响应超时。由于国内直连，通常是 API Key 无效或额度不足。请检查设置。";
             }
-            return "网络连接失败，请检查您的网络设置。";
         }
 
         async function updateAIWeeklyTip() {
-            if (!appData.lmp) return;
-            const tipEl = document.getElementById('ai-week-summary');
-            const prompt = `简要概括孕第 ${currentStatus.week} 周的生理变化要点和一项针对成都市准爸爸的建议。字数控制在50字内。`;
-            const summary = await callGemini(prompt, false);
-            tipEl.innerText = summary;
+            if (!appData.lmp || !appData.apiKey) {
+                document.getElementById('ai-week-summary').innerText = "请先配置 API Key 以启用智能分析。";
+                return;
+            }
+            const tip = await callQwen(`针对怀孕第 ${currentStatus.week} 周，给准爸爸写一条成都市本地的生活建议（50字内）。`);
+            document.getElementById('ai-week-summary').innerText = tip;
         }
 
+        // --- UI 与数据 ---
         function init() {
-            if (!appData.lmp) {
+            if (!appData.lmp || !appData.apiKey) {
                 openSettings();
             } else {
                 updateDashboard();
@@ -203,84 +178,78 @@
         }
 
         function updateDashboard() {
+            if (!appData.lmp) return;
             const lmp = new Date(appData.lmp);
             const now = new Date();
             const diffDays = Math.ceil(Math.abs(now - lmp) / (1000 * 60 * 60 * 24));
             const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
-            const daysLeft = Math.ceil((edd - now) / (1000 * 60 * 60 * 24));
+            const daysLeft = Math.max(0, Math.ceil((edd - now) / (1000 * 60 * 60 * 24)));
             
             currentStatus.week = Math.floor(diffDays / 7);
             currentStatus.day = diffDays % 7;
 
             document.getElementById('current-week-display').innerText = `孕 ${currentStatus.week} 周 ${currentStatus.day} 天`;
-            document.getElementById('days-left-display').innerText = daysLeft > 0 ? daysLeft : "0";
+            document.getElementById('days-left-display').innerText = daysLeft;
             document.getElementById('progress-bar').style.width = Math.min((diffDays / 280) * 100, 100) + '%';
         }
 
         function showTab(tab) {
             const content = document.getElementById('tab-content');
             const btns = ['home', 'milestones', 'policy', 'ai'];
-            btns.forEach(b => {
-                const el = document.getElementById('btn-' + b);
-                el.classList.remove('text-pink-500');
-                el.classList.add('text-gray-400');
-            });
-            document.getElementById('btn-' + tab).classList.add('text-pink-500');
+            btns.forEach(b => document.getElementById('btn-' + b).className = "flex flex-col items-center space-y-1 text-gray-400");
+            document.getElementById('btn-' + tab).className = "flex flex-col items-center space-y-1 text-pink-500";
 
             if (tab === 'home') {
                 content.innerHTML = `
                     <div class="card p-5 mb-4">
-                        <h3 class="font-bold mb-3 flex items-center"><i class="fas fa-heart text-pink-500 mr-2"></i> 宝妈今日提醒</h3>
-                        <ul class="space-y-3 text-sm text-gray-600">
-                            <li>✨ 记得每天早餐后服用叶酸。</li>
-                            <li>💤 保证充足睡眠，缓解孕早期疲劳。</li>
-                        </ul>
+                        <h3 class="font-bold mb-3 flex items-center text-pink-600"><i class="fas fa-check-circle mr-2"></i> 今日必备</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">● 补叶酸（0.4mg/天）<br>● 成都气象台提醒：昼夜温差大，宝妈注意保暖<br>● 晚间建议：散步15分钟，缓解压力</p>
                     </div>
-                    <div class="card p-5 bg-blue-50">
-                        <h3 class="font-bold mb-2 text-blue-700">成都实时政策助手</h3>
-                        <p class="text-xs text-blue-600 leading-relaxed">您可以切换到“AI助手”页询问：成都市最新的生育保险报销比例是多少？</p>
-                    </div>
-                `;
+                    <div class="card p-5 bg-pink-50">
+                        <h4 class="font-bold text-sm text-pink-700">成都建档指南（孕早期版）</h4>
+                        <p class="text-[11px] text-pink-600 mt-1">需携带：身份证、结婚证。推荐去社区服务中心先领手册，再预约华西二院或成都妇幼。职工医保可报销定额产检费。</p>
+                    </div>`;
             } else if (tab === 'milestones') {
-                content.innerHTML = milestones.map(m => `
-                    <div class="card p-4 flex space-x-4 mb-3">
-                        <div class="bg-pink-100 text-pink-600 rounded-xl px-3 py-2 text-center min-w-[60px]">
-                            <span class="text-lg font-bold block">${m.week}周</span>
+                const ms = [
+                    { w: "6-8", t: "B超心搏检查", d: "确认宫内孕，查看胎心胎芽。" },
+                    { w: "11-13", t: "NT筛查", d: "成都大医院需提前至少4周预约。" },
+                    { w: "15-18", t: "唐氏筛查", d: "职工医保定点医院可直接报销。" }
+                ];
+                content.innerHTML = ms.map(m => `
+                    <div class="card p-4 flex mb-3">
+                        <div class="bg-pink-100 text-pink-600 p-2 rounded-xl text-center min-w-[50px] mr-4">
+                            <span class="text-lg font-bold">${m.w}</span><span class="text-[10px]">周</span>
                         </div>
-                        <div>
-                            <h4 class="font-bold">${m.title}</h4>
-                            <p class="text-xs text-gray-500 mt-1">${m.detail}</p>
-                        </div>
-                    </div>
-                `).join('');
+                        <div><h4 class="font-bold text-sm">${m.t}</h4><p class="text-xs text-gray-400">${m.d}</p></div>
+                    </div>`).join('');
             } else if (tab === 'policy') {
-                content.innerHTML = chengduPolicies.map(p => `
-                    <div class="card p-5 mb-3 border-t-4 border-blue-400">
-                        <h4 class="font-bold text-gray-800">${p.title}</h4>
-                        <p class="text-xs text-gray-600 leading-relaxed mt-2">${p.detail}</p>
+                content.innerHTML = `
+                    <div class="card p-5 mb-3 border-l-4 border-blue-400">
+                        <h4 class="font-bold text-sm">成都生育登记</h4>
+                        <p class="text-xs text-gray-500 mt-1">搜索微信小程序“四川政务服务”，办理“生育登记证”。这是办准生证和领津贴的第一步。</p>
                     </div>
-                `).join('');
+                    <div class="card p-5 border-l-4 border-green-400">
+                        <h4 class="font-bold text-sm">职工生育保险</h4>
+                        <p class="text-xs text-gray-500 mt-1">在成都连续缴满6个月职工医保，产假期间可领工资全额津贴。住院报销比例最高可达90%以上。</p>
+                    </div>`;
             } else if (tab === 'ai') {
                 content.innerHTML = `
-                    <div class="flex flex-col h-[55vh]">
+                    <div class="flex flex-col h-[50vh]">
                         <div class="flex-1 overflow-y-auto space-y-4 p-2" id="chat-box">
-                            <div class="chat-bubble-ai p-3 text-sm max-w-[85%] shadow-sm">
-                                你好！我是您的真·AI助手。
-                                <br><br>
-                                我已经连接互联网，您可以问我：<br>
-                                • "成都华西二院建档需要什么条件？"<br>
-                                • "成都职工医保生二胎能领多少钱？"<br>
-                                • "孕早期突然想吃火锅，有什么成都推荐的健康点法？"
+                            <div class="chat-bubble-ai p-3 text-sm max-w-[90%] shadow-sm">
+                                欢迎使用千问增强版！您可以问我：<br>
+                                • "成都华西二院怎么抢号？"<br>
+                                • "孕初期突然见红怎么办？"<br>
+                                • "成都哪家火锅店适合孕妇吃？"
                             </div>
                         </div>
                         <div class="mt-4 flex space-x-2">
-                            <input id="chat-input" type="text" placeholder="向AI提问..." class="flex-1 border rounded-full px-4 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300">
+                            <input id="chat-input" type="text" placeholder="向千问提问..." class="flex-1 border rounded-full px-4 text-sm focus:outline-none focus:ring-2 focus:ring-pink-300 h-10">
                             <button onclick="sendMessage()" class="gradient-bg text-white w-10 h-10 rounded-full flex items-center justify-center">
                                 <i class="fas fa-paper-plane"></i>
                             </button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }
         }
 
@@ -291,36 +260,36 @@
 
             const userMsg = input.value;
             input.value = "";
-            box.innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-3 text-sm max-w-[85%] shadow-sm">${userMsg}</div></div>`;
+            box.innerHTML += `<div class="flex justify-end"><div class="chat-bubble-user p-3 text-sm max-w-[85%]">${userMsg}</div></div>`;
             box.scrollTop = box.scrollHeight;
 
-            // 显示加载中
             const loadingId = 'loading-' + Date.now();
-            box.innerHTML += `<div class="chat-bubble-ai p-3 text-sm max-w-[85%] shadow-sm" id="${loadingId}">
-                <div class="typing-dot"></div> <div class="typing-dot"></div> <div class="typing-dot"></div>
-            </div>`;
+            box.innerHTML += `<div class="chat-bubble-ai p-3 text-sm max-w-[85%]" id="${loadingId}"><div class="typing-dot"></div> <div class="typing-dot"></div> <div class="typing-dot"></div></div>`;
             box.scrollTop = box.scrollHeight;
 
-            const reply = await callGemini(userMsg);
-            
-            const loadingEl = document.getElementById(loadingId);
-            if (loadingEl) {
-                loadingEl.innerHTML = reply.replace(/\n/g, '<br>');
-            }
+            const reply = await callQwen(userMsg);
+            document.getElementById(loadingId).innerText = reply;
             box.scrollTop = box.scrollHeight;
         }
 
-        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+        function openSettings() {
+            document.getElementById('lmp-date').value = appData.lmp || "";
+            document.getElementById('api-key-input').value = appData.apiKey || "";
+            document.getElementById('settings-modal').classList.remove('hidden');
+        }
         function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
         function saveSettings() {
             const date = document.getElementById('lmp-date').value;
-            if (date) {
-                appData.lmp = date;
-                localStorage.setItem('prego_data', JSON.stringify(appData));
+            const key = document.getElementById('api-key-input').value;
+            if (date && key) {
+                appData = { lmp: date, apiKey: key };
+                localStorage.setItem('prego_qwen_v1', JSON.stringify(appData));
                 updateDashboard();
                 closeSettings();
                 showTab('home');
                 updateAIWeeklyTip();
+            } else {
+                alert("请填写完整信息以启用功能");
             }
         }
 
@@ -328,5 +297,3 @@
     </script>
 </body>
 </html>
-
-
