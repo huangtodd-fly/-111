@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>好孕管家 - 科学孕期管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-pink: #FF85A1;
+            --soft-pink: #FFF0F3;
+            --text-dark: #4A4A4A;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FDFBFC;
+            color: var(--text-dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #FF85A1 0%, #FFB1C1 100%);
+        }
+        .card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 4px 15px rgba(255, 133, 161, 0.1);
+        }
+        .tab-active {
+            color: var(--primary-pink);
+            border-bottom: 3px solid var(--primary-pink);
+        }
+        .safe-area-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- 顶部状态栏 -->
+    <div class="gradient-bg text-white p-6 rounded-b-[2.5rem] shadow-lg">
+        <div class="flex justify-between items-center mb-4">
+            <h1 class="text-xl font-bold">👶 好孕管家</h1>
+            <button onclick="openSettings()" class="opacity-80"><i class="fas fa-cog text-xl"></i></button>
+        </div>
+        
+        <div id="countdown-card" class="text-center py-4">
+            <p class="text-sm opacity-90 mb-1" id="current-week-display">点击设置预产期</p>
+            <div class="text-5xl font-black mb-2" id="days-left-display">--</div>
+            <p class="text-sm opacity-90">距宝宝出生还有多少天</p>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="mt-6">
+            <div class="flex justify-between text-xs mb-1">
+                <span>孕早期</span>
+                <span>孕中期</span>
+                <span>孕晚期</span>
+            </div>
+            <div class="w-full bg-white/30 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-white h-full" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <main class="px-4 mt-6">
+        
+        <!-- 今日建议 -->
+        <div class="card p-5 mb-6 border-l-4 border-[#FF85A1]">
+            <h2 class="font-bold text-lg mb-2 text-[#FF85A1] flex items-center">
+                <i class="fas fa-lightbulb mr-2"></i> 今日科学建议
+            </h2>
+            <p id="daily-tip" class="text-gray-600 text-sm leading-relaxed">
+                加载中...
+            </p>
+        </div>
+
+        <!-- 关键节点导航 -->
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="card p-4 flex items-center space-x-3" onclick="showTab('milestones')">
+                <div class="w-10 h-10 rounded-full bg-pink-100 flex items-center justify-center text-pink-500">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-sm">产检时间表</p>
+                    <p class="text-[10px] text-gray-400">掌握每个节点</p>
+                </div>
+            </div>
+            <div class="card p-4 flex items-center space-x-3" onclick="showTab('guide')">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-500">
+                    <i class="fas fa-apple-alt"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-sm">禁忌与饮食</p>
+                    <p class="text-[10px] text-gray-400">吃得更安心</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 动态内容渲染 -->
+        <div id="tab-content" class="space-y-4">
+            <!-- 由 JS 填充 -->
+        </div>
+
+    </main>
+
+    <!-- 底部导航 -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-16 safe-area-bottom shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-50">
+        <button onclick="showTab('home')" id="btn-home" class="flex flex-col items-center space-y-1 text-pink-500">
+            <i class="fas fa-home"></i><span class="text-[10px]">概览</span>
+        </button>
+        <button onclick="showTab('milestones')" id="btn-milestones" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-list-ul"></i><span class="text-[10px]">清单</span>
+        </button>
+        <button onclick="showTab('guide')" id="btn-guide" class="flex flex-col items-center space-y-1 text-gray-400">
+            <i class="fas fa-book-open"></i><span class="text-[10px]">手册</span>
+        </button>
+    </nav>
+
+    <!-- 设置弹窗 -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl p-6 w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4">孕期设置</h3>
+            <p class="text-sm text-gray-500 mb-4">输入最后一次月经(LMP)的第一天：</p>
+            <input type="date" id="lmp-date" class="w-full border rounded-xl p-3 mb-4 focus:outline-none focus:ring-2 focus:ring-pink-300">
+            <button onclick="saveSettings()" class="w-full gradient-bg text-white py-3 rounded-xl font-bold">开始追踪</button>
+            <button onclick="closeSettings()" class="w-full mt-2 py-3 text-gray-400 text-sm">取消</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 核心数据配置 ---
+        const milestones = [
+            { week: 6, title: "第一次产检", detail: "B超检查胎芽、心管搏动，确认宫内怀孕。" },
+            { week: 12, title: "NT筛查", detail: "建立孕期档案，检查胎儿颈后透明带厚度。" },
+            { week: 16, title: "唐氏筛查", detail: "排查唐氏综合征等染色体异常。" },
+            { week: 24, title: "大排畸B超", detail: "系统性结构筛查，观察宝宝发育是否畸形。" },
+            { week: 26, title: "糖耐量检测", detail: "筛查妊娠期糖尿病。" },
+            { week: 36, title: "每周产检", detail: "开始每周一次监测，准备分娩。" }
+        ];
+
+        const phaseTips = {
+            1: "【孕早期 1-3月】胎儿发育关键期，补充叶酸，避免剧烈运动和X光。如有少量出血请及时就医。",
+            2: "【孕中期 4-6月】早孕反应消失，胃口变好。注意补钙补铁，开始感受胎动。",
+            3: "【孕晚期 7-10月】注意监测胎动。控制糖分摄入，准备待产包，预防水肿。"
+        };
+
+        const foods = {
+            safe: ["叶酸", "坚果", "富含维生素C的水果", "牛肉/鱼肉"],
+            forbidden: ["生食/刺身", "酒精", "高糖饮料", "活血中药(山楂、桂圆过量)"]
+        };
+
+        // --- 应用逻辑 ---
+        let appData = JSON.parse(localStorage.getItem('prego_data')) || { lmp: null };
+
+        function init() {
+            if (!appData.lmp) {
+                document.getElementById('settings-modal').classList.remove('hidden');
+            } else {
+                updateDashboard();
+                showTab('home');
+            }
+        }
+
+        function updateDashboard() {
+            const lmp = new Date(appData.lmp);
+            const now = new Date();
+            
+            // 计算当前怀孕天数
+            const diffTime = Math.abs(now - lmp);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            // 预产期计算 (LMP + 280天)
+            const edd = new Date(lmp.getTime() + 280 * 24 * 60 * 60 * 1000);
+            const daysLeft = Math.ceil((edd - now) / (1000 * 60 * 60 * 24));
+            
+            const currentWeek = Math.floor(diffDays / 7);
+            const currentDay = diffDays % 7;
+
+            document.getElementById('current-week-display').innerText = `孕 ${currentWeek} 周 ${currentDay} 天`;
+            document.getElementById('days-left-display').innerText = daysLeft > 0 ? daysLeft : "已到达预产期";
+            
+            const progress = Math.min((diffDays / 280) * 100, 100);
+            document.getElementById('progress-bar').style.width = progress + '%';
+
+            // 设置提示
+            let phase = 1;
+            if (currentWeek >= 13) phase = 2;
+            if (currentWeek >= 28) phase = 3;
+            document.getElementById('daily-tip').innerText = phaseTips[phase];
+        }
+
+        function showTab(tab) {
+            const content = document.getElementById('tab-content');
+            
+            // 更新底部导航样式
+            const btns = ['home', 'milestones', 'guide'];
+            btns.forEach(b => {
+                const el = document.getElementById('btn-' + b);
+                el.classList.remove('text-pink-500');
+                el.classList.add('text-gray-400');
+            });
+            document.getElementById('btn-' + (tab === 'home' ? 'home' : tab)).classList.add('text-pink-500');
+
+            if (tab === 'home') {
+                content.innerHTML = `
+                    <div class="card p-5">
+                        <h3 class="font-bold mb-3">当前状态提醒</h3>
+                        <ul class="space-y-3 text-sm">
+                            <li class="flex items-start space-x-2">
+                                <span class="text-pink-500 mt-0.5">●</span>
+                                <span>按时服用叶酸（0.4mg/天）</span>
+                            </li>
+                            <li class="flex items-start space-x-2">
+                                <span class="text-pink-500 mt-0.5">●</span>
+                                <span>此时胚胎非常脆弱，避免熬夜。</span>
+                            </li>
+                            <li class="flex items-start space-x-2">
+                                <span class="text-pink-500 mt-0.5">●</span>
+                                <span>确认怀孕后，建议预约第6-8周的第一次B超。</span>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+            } else if (tab === 'milestones') {
+                let html = '<h3 class="font-bold text-lg mb-4">产检关键节点</h3>';
+                milestones.forEach(m => {
+                    html += `
+                        <div class="card p-4 flex space-x-4">
+                            <div class="flex flex-col items-center justify-center bg-pink-50 rounded-xl px-3 min-w-[60px]">
+                                <span class="text-xs text-pink-400">第</span>
+                                <span class="text-xl font-bold text-pink-600">${m.week}</span>
+                                <span class="text-xs text-pink-400">周</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">${m.title}</h4>
+                                <p class="text-xs text-gray-500 mt-1">${m.detail}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+                content.innerHTML = html;
+            } else if (tab === 'guide') {
+                content.innerHTML = `
+                    <div class="card p-5">
+                        <h3 class="font-bold text-red-500 mb-3"><i class="fas fa-exclamation-triangle mr-1"></i> 禁止/慎食</h3>
+                        <div class="flex flex-wrap gap-2">
+                            ${foods.forbidden.map(f => `<span class="bg-red-50 text-red-600 px-3 py-1 rounded-full text-xs font-medium">${f}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card p-5">
+                        <h3 class="font-bold text-green-600 mb-3"><i class="fas fa-check-circle mr-1"></i> 推荐摄入</h3>
+                        <div class="flex flex-wrap gap-2">
+                            ${foods.safe.map(f => `<span class="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-medium">${f}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card p-5">
+                        <h3 class="font-bold text-blue-600 mb-3"><i class="fas fa-info-circle mr-1"></i> 科学小知识</h3>
+                        <p class="text-xs leading-relaxed text-gray-600">
+                            怀孕第一个月，胚胎刚刚着床。此时准妈妈可能会感到胸部胀痛、易疲劳。这都是正常的激素变化。
+                            <br><br>
+                            <b>小建议：</b>可以开始下载一些胎教音乐或准备一本《怀孕百科》。
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+        function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+        
+        function saveSettings() {
+            const date = document.getElementById('lmp-date').value;
+            if (date) {
+                appData.lmp = date;
+                localStorage.setItem('prego_data', JSON.stringify(appData));
+                updateDashboard();
+                closeSettings();
+                showTab('home');
+            }
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
